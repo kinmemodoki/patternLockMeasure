@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta charset="UTF-8">
+    <title>PassMake Page</title>
+    <meta name="viewport" content="width=540 user-scalable=no">
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js'></script>  
+
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="patternlock-js/patternLock.css"  rel="stylesheet" type="text/css" />
+    <link href="main.css"  rel="stylesheet" type="text/css" />
+    <link href="demo.css"  rel="stylesheet" type="text/css" />
+
+    <style>
+      .mySlider{
+        position: absolute;
+        top:140px;
+        height:40px;
+        width:90%;
+        margin-left:5%;
+      }
+
+      #custom-handle1, #custom-handle2, #custom-handle3 {
+        height:42px;
+        width: 2em;
+      }
+
+      #myCursol{
+        width: 0;
+        height: 0;
+        border: 24px solid transparent;
+        border-top: 24px solid #f00;
+        margin-top: -30px;
+        margin-left: -24px;
+      }
+
+    </style>
+  </head>
+
+<body>
+  <div class="container">
+    <div class="scene">
+      <div class="meter center-absolute" id="meter">強度：<span id="value">none</span></div>
+
+         
+      <div id="slider" style="background-color: black;" class="mySlider">
+        <div id="custom-handle1" class="ui-slider-handle"></div>
+        <div id="custom-handle2" class="ui-slider-handle"></div>
+        <div id="custom-handle3" class="ui-slider-handle"></div>
+
+        <div id="range1" class="ui-slider-range ui-corner-all ui-widget-header" style="background-color: red; width:40%; left:0%;"></div>
+        <div id="range2" class="ui-slider-range ui-corner-all ui-widget-header" style="background-color: yellow; width:16%; left:40%;"></div>
+        <div id="range3" class="ui-slider-range ui-corner-all ui-widget-header" style="background-color: blue; width:44%; left:56%;"></div>
+
+        <div id="myCursol"></div>
+      </div>
+
+      <div id="thresholds">
+        Weak : 0.00 ~ <span id="val_w"></span>
+        Medium : <span id="val_m1"></span> ~ <span id="val_m2"></span> <br>
+        Strong : <span id="val_s1"></span> ~ <span id="val_s2"></span>
+        VeryStrong : <span id="val_vs1"></span> ~ 1.00
+      </div>
+ 
+
+    </div>
+    <div id="patternContainer" class="center-absolute bottom"></div>
+  </div>
+</body>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="patternlock-js/patternLock.js"></script>
+<script src="scripts/plm.js"></script>
+<script src="scripts/demo.js"></script>
+
+<script>
+$( function() {
+
+  var handles = [$( "#custom-handle1" ),$( "#custom-handle2" ),$( "#custom-handle3" )];
+  var rangeHandles = [$( "#range1" ),$( "#range2" ),$( "#range3" ),$( "#range4" )];
+  var valHundles = [[$( "#val_w" ),$( "#val_m1" )],[$( "#val_m2" ),$( "#val_s1" )],[$( "#val_s2" ),$( "#val_vs1" )] ];
+  $( "#slider" ).slider({
+    values: [ 40, 56, 100 ],
+    change: (event, ui )=>{
+      console.log(ui);
+      var values = ui.values;
+      rangeHandles[0].css('width', values[0]+'%');
+      rangeHandles[1].css('left', values[0]+'%');
+      rangeHandles[1].css('width', (values[1]-values[0])+'%');
+      rangeHandles[2].css('left', values[1]+'%');
+      rangeHandles[2].css('width', (values[2]-values[1])+'%');
+
+      measure.setThreshold(values.map(x => (x/100).toFixed(2)));
+    },
+    create: ()=>{
+      var values = [ 40, 56, 100 ];
+      valHundles[0][0].text( (values[0]/100).toFixed(2) );
+      valHundles[0][1].text( (values[0]/100).toFixed(2) );
+      valHundles[1][0].text( (values[1]/100).toFixed(2) );
+      valHundles[1][1].text( (values[1]/100).toFixed(2) );
+      valHundles[2][0].text( (values[2]/100).toFixed(2) );
+      valHundles[2][1].text( (values[2]/100).toFixed(2) );
+    },
+    slide: ( event, ui )=>{
+      var values = ui.values;
+      for(var i = 0; i < valHundles.length-1; i++){
+        valHundles[ui.handleIndex][i].text( (ui.value/100).toFixed(2) );
+      }
+
+      switch(ui.handleIndex){
+        case 0:
+          rangeHandles[0].css('width', values[0]+'%');
+          rangeHandles[1].css('left', values[0]+'%');
+          rangeHandles[1].css('width', (values[1]-values[0])+'%');
+          break;
+        case 1:
+          rangeHandles[1].css('width', (values[1]-values[0])+'%');
+          rangeHandles[2].css('left', values[1]+'%');
+          rangeHandles[2].css('width', (values[2]-values[1])+'%');
+          break;
+        case 2:
+          rangeHandles[2].css('width', (values[2]-values[1])+'%');
+          break;
+      }
+    }
+
+  });
+} );
+</script>
+</html>
