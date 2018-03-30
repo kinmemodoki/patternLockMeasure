@@ -48,7 +48,7 @@ const viewCtr = (function(){
       console.log(val);
       switch(rank){
         case 0:
-          value.innerText = "none";
+          value.innerText = "none(0.00)";
           value.style.color = "#666";
           break;
         case 1:
